@@ -8,9 +8,9 @@ Start
 
 Opdracht #1
 Model
-- [ ]CityLocation lijst van 8 steden maken
+- [x]CityLocation lijst van 8 steden maken - verwerkt ook deels in appsettings.json
 - [ ]DTO aanmaken van json
-- [ ]OpenMeteoAirClient implementeren met HttClient en DI
+- [x]OpenMeteoAirClient implementeren met HttClient en DI
 
 Logica
 - [ ]IAirQualityService interface maken
@@ -19,7 +19,7 @@ Logica
 
 Controller & view
 - [ ]AirQualityController opzetten met index
-- [ ]Dropdown menu voor steden wisselen
+- [x]Dropdown menu voor steden wisselen
 - [ ]Herladen voor nieuwe gegevens
 - [ ]AQI badge tonen met verschillende kleuren
 - [ ]Cards voor verschillende stoffen

@@ -1,7 +1,13 @@
+using AirPulse.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+
+// Voeg de services toe aan de DI-container
+builder.Services.AddHttpClient<OpenMeteoClient>();
+builder.Services.AddScoped<IAirQualityService, AirQualityService>();
 
 var app = builder.Build();
 

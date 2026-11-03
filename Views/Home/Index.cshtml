@@ -1,8 +1,73 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model AirPulse.Models.AirQualityView
+@{
+    ViewData["Title"] = "Luchtkwaliteit";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container py-4">
+    <div class="row align-items-center mb-4">
+        <div class="col-md-6">
+            <h2>Luchtkwaliteit: @Model.SelectedCity</h2>
+        </div>
+        <div class="col-md-6">
+            <!-- Formulier dat bij submit GET /Home/Index?city=GekozenStad uitvoert -->
+            <form method="get" asp-controller="Home" asp-action="Index" class="d-flex gap-2 justify-content-md-end">
+                <select name="city" class="form-select w-auto" onchange="this.form.submit()">
+                    @foreach (var cityOption in Model.AvailableCities)
+                    {
+                        <option value="@cityOption.Value" selected="@(cityOption.Selected ? "selected" : null)">
+                            @cityOption.Text
+                        </option>
+                    }
+                </select>
+                <button type="submit" class="btn btn-primary">
+                    Gegevens herladen
+                </button>
+            </form>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-warning" role="alert">
+            @Model.ErrorMessage
+        </div>
+    }
+    else if (Model.CurrentAirQuality?.Current != null)
+    {
+        var current = Model.CurrentAirQuality.Current;
+
+        <p class="text-muted">Tijdstip meting: @current.Time</p>
+
+        <table class="table table-bordered w-50">
+            <thead class="table-light">
+                <tr>
+                    <th>Meting</th>
+                    <th>Waarde</th>
+                    <th>Eenheid</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>European AQI</strong></td>
+                    <td>@current.EuropeanAqi</td>
+                    <td>Index</td>
+                </tr>
+                <tr>
+                    <td><strong>PM2.5 (Fijnstof klein)</strong></td>
+                    <td>@current.Pm25</td>
+                    <td>µg/m³</td>
+                </tr>
+                <tr>
+                    <td><strong>PM10 (Fijnstof groot)</strong></td>
+                    <td>@current.Pm10</td>
+                    <td>µg/m³</td>
+                </tr>
+                <tr>
+                    <td><strong>NO₂ (Stikstofdioxide)</strong></td>
+                    <td>@current.NitrogenDioxide</td>
+                    <td>µg/m³</td>
+                </tr>
+            </tbody>
+        </table>
+    }
 </div>

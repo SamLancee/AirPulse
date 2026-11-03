@@ -1,3 +1,6 @@
+3-11
+Gewerkt aan verbinding maken met API. Nu weergave van de eerste stad gemaakt. Bezig met dropdown menu om alle steden te laten zien. Ook een gitignore toegevoegd, hier nu weer al die bestanden weg die daarvoor waren gepusht. 
+
 2-11
  Verder aan alle bestanden doorlopen gegaan en opzet eerste code gemaakt. 
 
