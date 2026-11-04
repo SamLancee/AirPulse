@@ -4,12 +4,12 @@
 }
 
 <div class="container py-4">
+    <!-- Header & Dropdown -->
     <div class="row align-items-center mb-4">
         <div class="col-md-6">
-            <h2>Luchtkwaliteit: @Model.SelectedCity</h2>
+            <h1 class="h2 mb-0">Luchtkwaliteit: @Model.SelectedCity</h1>
         </div>
         <div class="col-md-6">
-            <!-- Formulier dat bij submit GET /Home/Index?city=GekozenStad uitvoert -->
             <form method="get" asp-controller="Home" asp-action="Index" class="d-flex gap-2 justify-content-md-end">
                 <select name="city" class="form-select w-auto" onchange="this.form.submit()">
                     @foreach (var cityOption in Model.AvailableCities)
@@ -19,9 +19,7 @@
                         </option>
                     }
                 </select>
-                <button type="submit" class="btn btn-primary">
-                    Gegevens herladen
-                </button>
+                <button type="submit" class="btn btn-outline-primary">Verversen</button>
             </form>
         </div>
     </div>
@@ -36,38 +34,64 @@
     {
         var current = Model.CurrentAirQuality.Current;
 
-        <p class="text-muted">Tijdstip meting: @current.Time</p>
+        <!-- Grote AQI Badge Card -->
+        <div class="card shadow-sm mb-4 border-0">
+            <div class="card-body text-center py-4">
+                <p class="text-uppercase text-muted fw-bold mb-1">Actuele Luchtkwaliteit Index</p>
+                
+                <!-- Grote getalweergave met dynamische kleur -->
+                <div class="display-1 fw-bold text-@current.AqiBadgeClass my-1">
+                    @(current.EuropeanAqi?.ToString("0") ?? "-")
+                </div>
+                
+                <!-- Badge met de status -->
+                <div>
+                    <span class="badge bg-@current.AqiBadgeClass fs-5 px-3 py-2">
+                        @current.AqiCategory
+                    </span>
+                </div>
+                
+                <small class="text-muted d-block mt-3">
+                    Laatste meting: @current.Time (European AQI schaal 0 - 100+)
+                </small>
+            </div>
+        </div>
 
-        <table class="table table-bordered w-50">
-            <thead class="table-light">
-                <tr>
-                    <th>Meting</th>
-                    <th>Waarde</th>
-                    <th>Eenheid</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><strong>European AQI</strong></td>
-                    <td>@current.EuropeanAqi</td>
-                    <td>Index</td>
-                </tr>
-                <tr>
-                    <td><strong>PM2.5 (Fijnstof klein)</strong></td>
-                    <td>@current.Pm25</td>
-                    <td>µg/m³</td>
-                </tr>
-                <tr>
-                    <td><strong>PM10 (Fijnstof groot)</strong></td>
-                    <td>@current.Pm10</td>
-                    <td>µg/m³</td>
-                </tr>
-                <tr>
-                    <td><strong>NO₂ (Stikstofdioxide)</strong></td>
-                    <td>@current.NitrogenDioxide</td>
-                    <td>µg/m³</td>
-                </tr>
-            </tbody>
-        </table>
+        <!-- Huidige tabel met de overige meetwaarden -->
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <table class="table table-bordered shadow-sm">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Meting</th>
+                            <th>Waarde</th>
+                            <th>Eenheid</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>European AQI</strong></td>
+                            <td>@current.EuropeanAqi</td>
+                            <td>Index</td>
+                        </tr>
+                        <tr>
+                            <td><strong>PM2.5 (Fijnstof klein)</strong></td>
+                            <td>@current.Pm25</td>
+                            <td>µg/m³</td>
+                        </tr>
+                        <tr>
+                            <td><strong>PM10 (Fijnstof groot)</strong></td>
+                            <td>@current.Pm10</td>
+                            <td>µg/m³</td>
+                        </tr>
+                        <tr>
+                            <td><strong>NO₂ (Stikstofdioxide)</strong></td>
+                            <td>@current.NitrogenDioxide</td>
+                            <td>µg/m³</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     }
 </div>

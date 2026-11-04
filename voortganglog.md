@@ -1,3 +1,5 @@
+4-11 relevantere steden gepakt in plaats van alleen NL, nu werkend drop down menu. Start gemaakt met verschillende waardes en wanneer deze dan slecht of goed zijn. AQi badge voor eerste toegevoegd. 
+
 3-11
 Gewerkt aan verbinding maken met API. Nu weergave van de eerste stad gemaakt. Bezig met dropdown menu om alle steden te laten zien. Ook een gitignore toegevoegd, hier nu weer al die bestanden weg die daarvoor waren gepusht. 
 

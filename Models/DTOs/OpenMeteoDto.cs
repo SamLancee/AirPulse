@@ -33,4 +33,27 @@ public class CurrentAirQualityDto
 
     [JsonPropertyName("nitrogen_dioxide")]
     public double? NitrogenDioxide { get; set; }
+
+    // Bepaal de tekstuele status op basis van European AQI banden
+    public string AqiCategory => EuropeanAqi switch
+    {
+        <= 20 => "Zeer goed",
+        <= 40 => "Goed",
+        <= 60 => "Matig",
+        <= 80 => "Slecht",
+        <= 100 => "Zeer slecht",
+        > 100 => "Extreem slecht",
+        _ => "Onbekend"
+    };
+
+    // Bepaal de Bootstrap kleurklasse
+    public string AqiBadgeClass => EuropeanAqi switch
+    {
+        <= 20 => "success",   // Groen
+        <= 40 => "info",      // Lichtblauw / Cyaan
+        <= 60 => "warning",   // Geel
+        <= 80 => "danger",    // Rood / Oranje
+        > 80 => "dark",       // Donkerrood / Zwart
+        _ => "secondary"
+    };
 }
