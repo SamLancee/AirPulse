@@ -20,9 +20,9 @@ public class HomeController : Controller
         // 1. Haal de 8 steden op uit de configuratie
         var configuredCities = _airQualityService.GetConfiguredCities();
 
-        // 2. Bepaal de gekozen stad (default naar Eindhoven of de eerste stad)
+        // 2. Bepaal de gekozen stad (default naar Amsterdam of de eerste stad)
         var selectedCityName = string.IsNullOrWhiteSpace(city) 
-            ? (configuredCities.FirstOrDefault()?.Name ?? "Eindhoven") 
+            ? (configuredCities.FirstOrDefault()?.Name ?? "Amsterdam") 
             : city;
 
         // 3. Haal live data op voor de geselecteerde stad
@@ -46,4 +46,42 @@ public class HomeController : Controller
 
         return View(viewModel);
     }
+    [HttpGet]
+[HttpGet]
+public async Task<IActionResult> Vergelijken(string? cityA, string? cityB)
+{
+    // configuredCities levert List<CityLocation> op
+    var configuredCities = _airQualityService.GetConfiguredCities();
+
+    // Haal de .Name (of pas aan naar .City als jouw property zo heet) op
+    cityA ??= configuredCities.FirstOrDefault()?.Name ?? "Amsterdam";
+    cityB ??= configuredCities.Skip(1).FirstOrDefault()?.Name ?? "Berlijn";
+
+    // Haal beide steden parallel op
+    var taskA = _airQualityService.GetCurrentAirQualityForCityAsync(cityA);
+    var taskB = _airQualityService.GetCurrentAirQualityForCityAsync(cityB);
+
+    await Task.WhenAll(taskA, taskB);
+
+    var dataA = await taskA;
+    var dataB = await taskB;
+
+    var viewModel = new CompareAirQualityViewModel
+    {
+        CityA = cityA,
+        CityB = cityB,
+        DataCityA = dataA,
+        DataCityB = dataB,
+        AvailableCities = configuredCities.Select(c => new SelectListItem
+        {
+            Value = c.Name, // Gebruik hier ook .Name in plaats van het hele object
+            Text = c.Name
+        }).ToList(),
+        ErrorMessage = (dataA?.Current == null || dataB?.Current == null)
+            ? "Kon voor één of beide steden geen actuele meetgegevens ophalen."
+            : null
+    };
+
+    return View(viewModel);
+}
 }

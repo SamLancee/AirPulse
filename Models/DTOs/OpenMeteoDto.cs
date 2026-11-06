@@ -19,6 +19,31 @@ public class CurrentAirQualityDto
     [JsonPropertyName("time")]
     public string? Time { get; set; }
 
+    public string FormattedTime
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(Time) || !DateTime.TryParse(Time, out var parsedDate))
+            {
+                return Time ?? "-";
+            }
+
+            var today = DateTime.Today;
+
+            if (parsedDate.Date == today)
+            {
+                return $"vandaag om {parsedDate:HH:mm}";
+            }
+            if (parsedDate.Date == today.AddDays(-1))
+            {
+                return $"gisteren om {parsedDate:HH:mm}";
+            }
+
+            // Fallback voor oudere data: bijv. "05-11-2026 om 10:00"
+            return $"{parsedDate:dd-MM-yyyy} om {parsedDate:HH:mm}";
+        }
+    }
+
     [JsonPropertyName("interval")]
     public int Interval { get; set; }
 
@@ -49,11 +74,29 @@ public class CurrentAirQualityDto
     // Bepaal de Bootstrap kleurklasse
     public string AqiBadgeClass => EuropeanAqi switch
     {
-        <= 20 => "success",   // Groen
+        <= 20 => "primary",   // Groen
         <= 40 => "info",      // Lichtblauw / Cyaan
         <= 60 => "warning",   // Geel
         <= 80 => "danger",    // Rood / Oranje
         > 80 => "dark",       // Donkerrood / Zwart
         _ => "secondary"
     };
+
+    public int GetPercentage(double? value, double threshold)
+    {
+        if (!value.HasValue || value <= 0) return 0;
+        // Rekent uit hoeveel % van de drempelwaarde is bereikt, met een max van 100%
+        return (int)Math.Min((value.Value / threshold) * 100, 100);
+    }
+
+    public string GetPollutantColor(double? value, double threshold)
+    {
+        if (!value.HasValue) return "secondary";
+
+        // Groen onder 50% van de grenswaarde, geel tussen 50-80%, rood erboven
+        var ratio = value.Value / threshold;
+        if (ratio < 0.5) return "info";   // Blauw
+        if (ratio < 0.8) return "warning";   // Geel
+        return "danger";                     // Rood / attentie
+    }
 }

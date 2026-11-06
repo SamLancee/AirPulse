@@ -5,23 +5,25 @@ Start
 - [x]TODO toevoegen
 - [x]voortganglog toevoegen
 - [x]Structuur bedenken voor de classes 
+- [x]Readme uitbreiden
 
 Opdracht #1
 Model
 - [x]CityLocation lijst van 8 steden maken - verwerkt ook deels in appsettings.json
-- [ ]DTO aanmaken van json
+- [x]DTO aanmaken van json
 - [x]OpenMeteoAirClient implementeren met HttClient en DI
 
 Logica
-- [ ]IAirQualityService interface maken
-- [ ]AirQualityService voor ophalen mappen en naar view klaar model
-- [ ]Advieslabel (extra opdracht) 
+- [x]IAirQualityService interface maken
+- [x]AirQualityService voor ophalen mappen en naar view klaar model
+- [x]Advieslabel (extra opdracht) 
 
 Controller & view
-- [ ]AirQualityController opzetten met index
+- [x]HomeController opzetten met index
 - [x]Dropdown menu voor steden wisselen
-- [ ]Herladen voor nieuwe gegevens
-- [ ]AQI badge tonen met verschillende kleuren
-- [ ]Cards voor verschillende stoffen
-- [ ]Foutmelding wanneer API niet bereikbaar is
+- [x]Herladen voor nieuwe gegevens
+- [x]AQI badge tonen met verschillende kleuren
+- [x]Cards voor verschillende stoffen
+- [x]Foutmelding wanneer API niet bereikbaar is
+- [x]Progress bars of gauge bar toevoegen
 - [ ]Vergelijk 2 steden (extra opdracht)

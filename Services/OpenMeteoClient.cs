@@ -15,11 +15,12 @@ public class OpenMeteoClient
     }
 
     public async Task<OpenMeteoDto?> FetchAirQualityAsync(double latitude, double longitude)
+{
+    try
     {
-        // Cultuur invariant zorgt dat 51.4416 met een punt wordt geformatteerd in plaats van een komma
         var lat = latitude.ToString(CultureInfo.InvariantCulture);
         var lon = longitude.ToString(CultureInfo.InvariantCulture);
-        var url = $"air-quality?latitude={lat}&longitude={lon}&current=european_aqi,pm2_5,pm10,nitrogen_dioxide";
+        var url = $"air-quality?latitude={lat}&longitude={lon}&current=european_aqi,pm2_5,pm10,nitrogen_dioxide&timezone=auto";
 
         var response = await _httpClient.GetAsync(url);
         if (!response.IsSuccessStatusCode)
@@ -28,13 +29,13 @@ public class OpenMeteoClient
         }
 
         var json = await response.Content.ReadAsStringAsync();
-
-        var options = new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true,
-            PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
-        };
-
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         return JsonSerializer.Deserialize<OpenMeteoDto>(json, options);
     }
+    catch (Exception)
+    {
+        // Vangt DNS-fouten, time-outs, ongeldige URL's en verbroken verbindingen af
+        return null;
+    }
+}
 }

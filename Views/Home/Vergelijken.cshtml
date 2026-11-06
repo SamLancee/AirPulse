@@ -1,0 +1,149 @@
+@model AirPulse.Models.CompareAirQualityViewModel
+@{
+    ViewData["Title"] = "Steden Vergelijken";
+}
+
+<div class="container py-4">
+    <h1 class="h2 mb-4">Luchtkwaliteit Vergelijken</h1>
+
+    <!-- Twee dropdowns naast elkaar -->
+    <form method="get" asp-controller="Home" asp-action="Vergelijken" class="card p-3 shadow-sm mb-4 border-0">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label fw-bold">Stad 1</label>
+                <select name="cityA" class="form-select" onchange="this.form.submit()">
+                    @foreach (var city in Model.AvailableCities)
+                    {
+                        <option value="@city.Value" selected="@(city.Value == Model.CityA ? "selected" : null)">
+                            @city.Text
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-5">
+                <label class="form-label fw-bold">Stad 2</label>
+                <select name="cityB" class="form-select" onchange="this.form.submit()">
+                    @foreach (var city in Model.AvailableCities)
+                    {
+                        <option value="@city.Value" selected="@(city.Value == Model.CityB ? "selected" : null)">
+                            @city.Text
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary w-100">Verversen</button>
+            </div>
+        </div>
+    </form>
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-warning" role="alert">
+            @Model.ErrorMessage
+        </div>
+    }
+
+    <!-- Vergelijking in twee kolommen -->
+    <div class="row g-4">
+        <!-- Kolom Stad A -->
+        <div class="col-md-6">
+            <h3 class="h4 text-center mb-3">@Model.CityA</h3>
+            @if (Model.DataCityA?.Current != null)
+            {
+                var curA = Model.DataCityA.Current;
+                
+                <div class="card shadow-sm border-0 mb-3 text-center py-3">
+                    <p class="text-uppercase text-muted fw-bold mb-1">Index</p>
+                    <div class="display-3 fw-bold text-@curA.AqiBadgeClass">
+                        @(curA.EuropeanAqi?.ToString("0") ?? "-")
+                    </div>
+                    <span class="badge bg-@curA.AqiBadgeClass fs-6 px-3 py-1 align-self-center mt-1">
+                        @curA.AqiCategory
+                    </span>
+                </div>
+
+                <div class="card p-3 shadow-sm border-0 mb-2">
+                    <div class="d-flex justify-content-between">
+                        <span>PM 2.5</span>
+                        <strong>@(curA.Pm25?.ToString("0.0") ?? "-") µg/m³</strong>
+                    </div>
+                    <div class="progress mt-2" style="height: 6px;">
+                        <div class="progress-bar bg-@curA.GetPollutantColor(curA.Pm25, 25)" style="width: @curA.GetPercentage(curA.Pm25, 25)%"></div>
+                    </div>
+                </div>
+
+                <div class="card p-3 shadow-sm border-0 mb-2">
+                    <div class="d-flex justify-content-between">
+                        <span>PM 10</span>
+                        <strong>@(curA.Pm10?.ToString("0.0") ?? "-") µg/m³</strong>
+                    </div>
+                    <div class="progress mt-2" style="height: 6px;">
+                        <div class="progress-bar bg-@curA.GetPollutantColor(curA.Pm10, 50)" style="width: @curA.GetPercentage(curA.Pm10, 50)%"></div>
+                    </div>
+                </div>
+
+                <div class="card p-3 shadow-sm border-0 mb-2">
+                    <div class="d-flex justify-content-between">
+                        <span>NO₂</span>
+                        <strong>@(curA.NitrogenDioxide?.ToString("0.0") ?? "-") µg/m³</strong>
+                    </div>
+                    <div class="progress mt-2" style="height: 6px;">
+                        <div class="progress-bar bg-@curA.GetPollutantColor(curA.NitrogenDioxide, 90)" style="width: @curA.GetPercentage(curA.NitrogenDioxide, 90)%"></div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Kolom Stad B -->
+        <div class="col-md-6">
+            <h3 class="h4 text-center mb-3">@Model.CityB</h3>
+            @if (Model.DataCityB?.Current != null)
+            {
+                var curB = Model.DataCityB.Current;
+                
+                <div class="card shadow-sm border-0 mb-3 text-center py-3">
+                    <p class="text-uppercase text-muted fw-bold mb-1">Index</p>
+                    <div class="display-3 fw-bold text-@curB.AqiBadgeClass">
+                        @(curB.EuropeanAqi?.ToString("0") ?? "-")
+                    </div>
+                    <span class="badge bg-@curB.AqiBadgeClass fs-6 px-3 py-1 align-self-center mt-1">
+                        @curB.AqiCategory
+                    </span>
+                </div>
+
+                <div class="card p-3 shadow-sm border-0 mb-2">
+                    <div class="d-flex justify-content-between">
+                        <span>PM 2.5</span>
+                        <strong>@(curB.Pm25?.ToString("0.0") ?? "-") µg/m³</strong>
+                    </div>
+                    <div class="progress mt-2" style="height: 6px;">
+                        <div class="progress-bar bg-@curB.GetPollutantColor(curB.Pm25, 25)" style="width: @curB.GetPercentage(curB.Pm25, 25)%"></div>
+                    </div>
+                </div>
+
+                <div class="card p-3 shadow-sm border-0 mb-2">
+                    <div class="d-flex justify-content-between">
+                        <span>PM 10</span>
+                        <strong>@(curB.Pm10?.ToString("0.0") ?? "-") µg/m³</strong>
+                    </div>
+                    <div class="progress mt-2" style="height: 6px;">
+                        <div class="progress-bar bg-@curB.GetPollutantColor(curB.Pm10, 50)" style="width: @curB.GetPercentage(curB.Pm10, 50)%"></div>
+                    </div>
+                </div>
+
+                <div class="card p-3 shadow-sm border-0 mb-2">
+                    <div class="d-flex justify-content-between">
+                        <span>NO₂</span>
+                        <strong>@(curB.NitrogenDioxide?.ToString("0.0") ?? "-") µg/m³</strong>
+                    </div>
+                    <div class="progress mt-2" style="height: 6px;">
+                        <div class="progress-bar bg-@curB.GetPollutantColor(curB.NitrogenDioxide, 90)" style="width: @curB.GetPercentage(curB.NitrogenDioxide, 90)%"></div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

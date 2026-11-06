@@ -35,9 +35,9 @@
         var current = Model.CurrentAirQuality.Current;
 
         <!-- Grote AQI Badge Card -->
-        <div class="card shadow-sm mb-4 border-0">
-            <div class="card-body text-center py-4">
-                <p class="text-uppercase text-muted fw-bold mb-1">Actuele Luchtkwaliteit Index</p>
+        <div class="card border-0">
+            <div class="card-body text-center">
+                <p class="text-uppercase fw-bold mb-1">Actuele Luchtkwaliteit Index</p>
                 
                 <!-- Grote getalweergave met dynamische kleur -->
                 <div class="display-1 fw-bold text-@current.AqiBadgeClass my-1">
@@ -52,14 +52,47 @@
                 </div>
                 
                 <small class="text-muted d-block mt-3">
-                    Laatste meting: @current.Time (European AQI schaal 0 - 100+)
+                    Laatste meting: @current.FormattedTime (lokale tijd)
                 </small>
             </div>
         </div>
 
+        <div class="card-grid">
+            <div class="card p-3">
+                <h5>PM 2.5</h5>
+                <p class="mb-0">Waarde: @(current.Pm25?.ToString("0.0") ?? "-") µg/m³</p>
+                <div class="progress" style="height: 8px;">
+                <div class="progress-bar bg-@current.GetPollutantColor(current.Pm25, 25)" 
+                    role="progressbar" style="width: @current.GetPercentage(current.Pm25, 25)%">
+            </div>
+            </div>
+            </div>
+
+            <div class="card p-3">
+                <h5>PM 10</h5>
+                <p class="mb-0">Waarde: @(current.Pm10?.ToString("0.0") ?? "-") µg/m³</p>
+                <div class="progress" style="height: 8px;">
+                <div class="progress-bar bg-@current.GetPollutantColor(current.Pm10, 50)" 
+                    role="progressbar" style="width: @current.GetPercentage(current.Pm10, 50)%">
+            </div>
+            </div>
+            </div>
+            <div class="card p-3">
+                <h5>NO₂</h5>
+                <p class="mb-0">Waarde: @(current.NitrogenDioxide?.ToString("0.0") ?? "-") µg/m³</p>
+                <div class="progress" style="height: 8px;">
+                <div class="progress-bar bg-@current.GetPollutantColor(current.NitrogenDioxide, 90)" 
+                    role="progressbar" style="width: @current.GetPercentage(current.NitrogenDioxide, 90)%">
+            </div>
+            </div>
+            </div>
+        </div>
+
+        @*
         <!-- Huidige tabel met de overige meetwaarden -->
         <div class="row justify-content-center">
             <div class="col-md-8">
+                
                 <table class="table table-bordered shadow-sm">
                     <thead class="table-light">
                         <tr>
@@ -90,8 +123,8 @@
                             <td>µg/m³</td>
                         </tr>
                     </tbody>
-                </table>
+                </table> 
             </div>
-        </div>
+        </div>*@
     }
 </div>
