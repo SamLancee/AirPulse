@@ -1,3 +1,6 @@
+9-11
+Gewerkt aan het opslaan van API logs, met name veel opgezocht en yt filmpjes gekeken voor ik wist hoe het moest. 
+
 6-11
 Progress bars afgemaakt en gewerkt aan 2 steden vergelijken. 
 
