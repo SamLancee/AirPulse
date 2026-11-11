@@ -87,44 +87,110 @@
             </div>
             </div>
         </div>
-
-        @*
-        <!-- Huidige tabel met de overige meetwaarden -->
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                
-                <table class="table table-bordered shadow-sm">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Meting</th>
-                            <th>Waarde</th>
-                            <th>Eenheid</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>European AQI</strong></td>
-                            <td>@current.EuropeanAqi</td>
-                            <td>Index</td>
-                        </tr>
-                        <tr>
-                            <td><strong>PM2.5 (Fijnstof klein)</strong></td>
-                            <td>@current.Pm25</td>
-                            <td>µg/m³</td>
-                        </tr>
-                        <tr>
-                            <td><strong>PM10 (Fijnstof groot)</strong></td>
-                            <td>@current.Pm10</td>
-                            <td>µg/m³</td>
-                        </tr>
-                        <tr>
-                            <td><strong>NO₂ (Stikstofdioxide)</strong></td>
-                            <td>@current.NitrogenDioxide</td>
-                            <td>µg/m³</td>
-                        </tr>
-                    </tbody>
-                </table> 
-            </div>
-        </div>*@
     }
+    <!-- NIEUW: Grafiek Card -->
+        <div class="card p-3 mt-4 shadow-sm border-0">
+            <h5 class="card-title mb-3">Verloop Luchtkwaliteit (@Model.SelectedCity)</h5>
+            <div style="height: 320px; width: 100%;">
+                <canvas id="airQualityChart"></canvas>
+            </div>
+        </div>
+    
 </div>
+
+@section Scripts {
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async function () {
+            const cityName = "@Model.SelectedCity";
+            const ctx = document.getElementById('airQualityChart').getContext('2d');
+
+            try {
+                // Haal data op uit je eigen opgeslagen SQLite samples
+                const response = await fetch(`/api/air/${encodeURIComponent(cityName)}`);
+                if (!response.ok) {
+                    console.warn("Geen historische data gevonden voor deze stad.");
+                    return;
+                }
+
+                const data = await response.json();
+                const samples = data.samples;
+
+                if (!samples || samples.length === 0) {
+                    return;
+                }
+
+                const labels = samples.map(s => s.time);
+                const aqiData = samples.map(s => s.aqi);
+                const pm25Data = samples.map(s => s.pm25);
+                const pm10Data = samples.map(s => s.pm10);
+                const no2Data = samples.map(s => s.no2);
+
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'European AQI',
+                                data: aqiData,
+                                borderColor: '#0dcaf0', // info blauw
+                                backgroundColor: 'rgba(13, 202, 240, 0.1)',
+                                tension: 0.3,
+                                fill: false
+                            },
+                            {
+                                label: 'PM 2.5 (µg/m³)',
+                                data: pm25Data,
+                                borderColor: '#ffc107', // warning geel
+                                tension: 0.3,
+                                fill: false
+                            },
+                            {
+                                label: 'PM 10 (µg/m³)',
+                                data: pm10Data,
+                                borderColor: '#fd7e14', // oranje
+                                tension: 0.3,
+                                fill: false
+                            },
+                            {
+                                label: 'NO₂ (µg/m³)',
+                                data: no2Data,
+                                borderColor: '#dc3545', // danger rood
+                                tension: 0.3,
+                                fill: false
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Waarde / Index'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Tijdstip'
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (err) {
+                console.error("Fout bij laden grafiek:", err);
+            }
+        });
+    </script>
+}
