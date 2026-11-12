@@ -1,3 +1,6 @@
+11-11
+Gewerkt aan het weergeven van de opgeslagen data. Nu werkt het voor steden zelf, Bij het vergelijken moet ik dit nog toevoegen. 
+
 9-11
 Gewerkt aan het opslaan van API logs, met name veel opgezocht en yt filmpjes gekeken voor ik wist hoe het moest. 
 
