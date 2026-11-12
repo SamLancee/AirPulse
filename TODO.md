@@ -27,3 +27,11 @@ Controller & view
 - [x]Foutmelding wanneer API niet bereikbaar is
 - [x]Progress bars of gauge bar toevoegen
 - [ ]Vergelijk 2 steden (extra opdracht)
+
+-[x]Data opslaan
+-[x]Grafiek maken
+-[x]Grafiek een dropdown menu geven voor verschillende opties
+
+Vervolgstappen
+- [ ]Grafieken toevoegen bij vergelijken
+- [ ]Nadenken over visualisatie van de grafiek, EAQI heeft bovenwaarde in plaats van grenswaarde. Nu kan EAQI onder de andere waarden liggen. 

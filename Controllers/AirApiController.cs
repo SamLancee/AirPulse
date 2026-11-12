@@ -20,32 +20,40 @@ public class AirApiController : ControllerBase
 
     [HttpGet("{city}")]
     public async Task<IActionResult> GetAirQualityByCity(
-        string city, 
-        [FromQuery] DateTime? start, 
-        [FromQuery] DateTime? end)
+    string city, 
+    [FromQuery] DateTime? start, 
+    [FromQuery] DateTime? end)
     {
-        var startDate = start ?? DateTime.UtcNow.AddDays(-7);
-        var endDate = end ?? startDate.AddDays(7);
+    var startDate = start ?? DateTime.UtcNow.AddDays(-7);
+    var endDate = end ?? startDate.AddDays(7);
 
-        var samples = await _context.AirQualitySamples
-            .Where(s => s.City.ToLower() == city.ToLower() 
-                     && s.Timestamp >= startDate 
-                     && s.Timestamp <= endDate)
-            .OrderBy(s => s.Timestamp)
-            .Select(s => new
-            {
-                time = s.Timestamp.ToString("dd-MM HH:mm"),
-                aqi = s.EuropeanAqi,
-                pm25 = s.Pm25,
-                pm10 = s.Pm10,
-                no2 = s.NitrogenDioxide
-            })
-            .ToListAsync();
+    // 1. Haal alle ruwe samples binnen het tijdvak op
+    var rawSamples = await _context.AirQualitySamples
+        .Where(s => s.City.ToLower() == city.ToLower() 
+                 && s.Timestamp >= startDate 
+                 && s.Timestamp <= endDate)
+        .ToListAsync();
 
-        return Ok(new
+    // 2. Groepeer op dag + uur en pak per uur het LAATSTE (meest recente) meetpunt
+    var hourlySamples = rawSamples
+        .GroupBy(s => new { s.Timestamp.Date, s.Timestamp.Hour })
+        .Select(group => group.OrderByDescending(s => s.Timestamp).First())
+        .OrderBy(s => s.Timestamp)
+        .Select(s => new
         {
-            city = city,
-            samples = samples
-        });
-    }
+            // Toon netjes het hele uur in lokale tijd (bijv. "12-11 09:00")
+            time = s.Timestamp.ToLocalTime().ToString("dd-MM HH:00"),
+            aqi = s.EuropeanAqi,
+            pm25 = s.Pm25,
+            pm10 = s.Pm10,
+            no2 = s.NitrogenDioxide
+        })
+        .ToList();
+
+    return Ok(new
+    {
+        city = city,
+        samples = hourlySamples
+    });
+}
 }

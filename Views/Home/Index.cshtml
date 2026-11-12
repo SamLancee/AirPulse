@@ -88,109 +88,141 @@
             </div>
         </div>
     }
-    <!-- NIEUW: Grafiek Card -->
-        <div class="card p-3 mt-4 shadow-sm border-0">
-            <h5 class="card-title mb-3">Verloop Luchtkwaliteit (@Model.SelectedCity)</h5>
-            <div style="height: 320px; width: 100%;">
-                <canvas id="airQualityChart"></canvas>
-            </div>
+   <!-- Grafiek Card met Dropdown Filter -->
+<div class="card p-3 mt-4 shadow-sm border-0">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="card-title mb-0">Verloop Luchtkwaliteit (@Model.SelectedCity)</h5>
+        
+        <div>
+            <select id="timeRangeFilter" class="form-select form-select-sm" style="width: auto;">
+                <option value="today">Vandaag</option>
+                <option value="2days">Afgelopen 2 dagen</option>
+                <option value="7days" selected>Afgelopen 7 dagen</option>
+            </select>
         </div>
+    </div>
+
+    <div style="height: 320px; width: 100%;">
+        <canvas id="airQualityChart"></canvas>
+    </div>
+</div>
     
 </div>
 
 @section Scripts {
-    <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
-        document.addEventListener("DOMContentLoaded", async function () {
+        document.addEventListener("DOMContentLoaded", function () {
             const cityName = "@Model.SelectedCity";
             const ctx = document.getElementById('airQualityChart').getContext('2d');
+            const filterDropdown = document.getElementById('timeRangeFilter');
+            let chartInstance = null; // Bewaart de huidige grafiek zodat we die kunnen verversen
 
-            try {
-                // Haal data op uit je eigen opgeslagen SQLite samples
-                const response = await fetch(`/api/air/${encodeURIComponent(cityName)}`);
-                if (!response.ok) {
-                    console.warn("Geen historische data gevonden voor deze stad.");
-                    return;
+            // Functie die de juiste startdatum berekent op basis van de dropdown-keuze
+            function buildApiUrl(range) {
+                let url = `/api/air/${encodeURIComponent(cityName)}`;
+                const now = new Date();
+                let startDate = null;
+
+                if (range === "today") {
+                    // Vanaf 00:00 uur vandaag
+                    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                } else if (range === "2days") {
+                    startDate = new Date(now.getTime() - (2 * 24 * 60 * 60 * 1000));
+                } else if (range === "7days") {
+                    startDate = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
                 }
 
-                const data = await response.json();
-                const samples = data.samples;
+                return url;
+            }
 
-                if (!samples || samples.length === 0) {
-                    return;
-                }
+            // Functie om data op te halen en de grafiek te tekenen/updaten
+            async function loadChartData() {
+                const selectedRange = filterDropdown.value;
+                const apiUrl = buildApiUrl(selectedRange);
 
-                const labels = samples.map(s => s.time);
-                const aqiData = samples.map(s => s.aqi);
-                const pm25Data = samples.map(s => s.pm25);
-                const pm10Data = samples.map(s => s.pm10);
-                const no2Data = samples.map(s => s.no2);
+                try {
+                    const response = await fetch(apiUrl);
+                    if (!response.ok) return;
 
-                new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            {
-                                label: 'European AQI',
-                                data: aqiData,
-                                borderColor: '#0dcaf0', // info blauw
-                                backgroundColor: 'rgba(13, 202, 240, 0.1)',
-                                tension: 0.3,
-                                fill: false
-                            },
-                            {
-                                label: 'PM 2.5 (µg/m³)',
-                                data: pm25Data,
-                                borderColor: '#ffc107', // warning geel
-                                tension: 0.3,
-                                fill: false
-                            },
-                            {
-                                label: 'PM 10 (µg/m³)',
-                                data: pm10Data,
-                                borderColor: '#fd7e14', // oranje
-                                tension: 0.3,
-                                fill: false
-                            },
-                            {
-                                label: 'NO₂ (µg/m³)',
-                                data: no2Data,
-                                borderColor: '#dc3545', // danger rood
-                                tension: 0.3,
-                                fill: false
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        interaction: {
-                            mode: 'index',
-                            intersect: false,
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: 'Waarde / Index'
+                    const data = await response.json();
+                    const samples = data.samples || [];
+
+                    const labels = samples.map(s => s.time);
+                    const aqiData = samples.map(s => s.aqi);
+                    const pm25Data = samples.map(s => s.pm25 != null ? Math.round((s.pm25 / 25) * 100) : null);
+                    const pm10Data = samples.map(s => s.pm10 != null ? Math.round((s.pm10 / 50) * 100) : null);
+                    const no2Data = samples.map(s => s.no2 != null ? Math.round((s.no2 / 90) * 100) : null);
+                    const yAxisLabel = 'Percentage van limiet (%) / Index';
+
+                    // Ruimt de oude grafiek eerst op voordat we een nieuwe tekenen
+                    if (chartInstance) {
+                        chartInstance.destroy();
+                    }
+
+                    chartInstance = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [
+                                {
+                                    label: 'European AQI',
+                                    data: aqiData,
+                                    borderColor: '#0dcaf0',
+                                    backgroundColor: 'rgba(13, 202, 240, 0.1)',
+                                    tension: 0.3,
+                                    fill: false
+                                },
+                                {
+                                    label: 'PM 2.5 (µg/m³)',
+                                    data: pm25Data,
+                                    borderColor: '#ffc107',
+                                    tension: 0.3,
+                                    fill: false
+                                },
+                                {
+                                    label: 'PM 10 (µg/m³)',
+                                    data: pm10Data,
+                                    borderColor: '#fd7e14',
+                                    tension: 0.3,
+                                    fill: false
+                                },
+                                {
+                                    label: 'NO₂ (µg/m³)',
+                                    data: no2Data,
+                                    borderColor: '#dc3545',
+                                    tension: 0.3,
+                                    fill: false
                                 }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: {
+                                mode: 'index',
+                                intersect: false,
                             },
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: 'Tijdstip'
+                            scales: {
+                                y: {beginAtZero: true, title: { display: true, text: yAxisLabel }
+                                },
+                                x: {
+                                    title: { display: true, text: 'Tijdstip' }
                                 }
                             }
                         }
-                    }
-                });
-            } catch (err) {
-                console.error("Fout bij laden grafiek:", err);
+                    });
+                } catch (err) {
+                    console.error("Fout bij ophalen grafiekdata:", err);
+                }
             }
+
+            // 1. Luister naar wijzigingen in het dropdown-menu
+            filterDropdown.addEventListener("change", loadChartData);
+
+            // 2. Laad direct bij het openen van de pagina
+            loadChartData();
         });
     </script>
 }
