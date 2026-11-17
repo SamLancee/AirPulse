@@ -40,3 +40,4 @@ Vervolgstappen
 -[ ] backend koppelen met frontend
 -[ ] Check alle visualisaties en of alle data kloppend is
 -[ ] Edge cases nalopen en kijken of alles wordt afgehangen in geval van error
+-[ ] Bestanden zo inrichten dat frontend los van backend kan draaien .shared 

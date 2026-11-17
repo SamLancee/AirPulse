@@ -30,12 +30,12 @@
             @Model.ErrorMessage
         </div>
     }
-    else if (Model.CurrentAirQuality?.Current != null)
+    else if (Model.LatestSample != null)
     {
-        var current = Model.CurrentAirQuality.Current;
+        var current = Model.LatestSample;
 
         <!-- Grote AQI Badge Card -->
-        <div class="card border-0">
+        <div class="card border-0 shadow-sm mb-4">
             <div class="card-body text-center">
                 <p class="text-uppercase fw-bold mb-1">Actuele Luchtkwaliteit Index</p>
                 
@@ -52,61 +52,84 @@
                 </div>
                 
                 <small class="text-muted d-block mt-3">
-                    Laatste meting: @current.FormattedTime (lokale tijd)
+                    Meetmoment: @current.FormattedTime | Laatst gesynchroniseerd: @current.LastUpdated.ToLocalTime().ToString("dd-MM-yyyy HH:mm")
                 </small>
             </div>
         </div>
 
-        <div class="card-grid">
-            <div class="card p-3">
-                <h5>PM 2.5</h5>
-                <p class="mb-0">Waarde: @(current.Pm25?.ToString("0.0") ?? "-") µg/m³</p>
-                <div class="progress" style="height: 8px;">
-                <div class="progress-bar bg-@current.GetPollutantColor(current.Pm25, 25)" 
-                    role="progressbar" style="width: @current.GetPercentage(current.Pm25, 25)%">
-            </div>
-            </div>
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="card p-3 shadow-sm border-0">
+                    <h5>PM 2.5</h5>
+                    <p class="mb-2">Waarde: @(current.Pm25?.ToString("0.0") ?? "-") µg/m³</p>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-@current.GetPollutantColor(current.Pm25, 25)" 
+                             role="progressbar" style="width: @current.GetPercentage(current.Pm25, 25)%">
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="card p-3">
-                <h5>PM 10</h5>
-                <p class="mb-0">Waarde: @(current.Pm10?.ToString("0.0") ?? "-") µg/m³</p>
-                <div class="progress" style="height: 8px;">
-                <div class="progress-bar bg-@current.GetPollutantColor(current.Pm10, 50)" 
-                    role="progressbar" style="width: @current.GetPercentage(current.Pm10, 50)%">
+            <div class="col-md-4">
+                <div class="card p-3 shadow-sm border-0">
+                    <h5>PM 10</h5>
+                    <p class="mb-2">Waarde: @(current.Pm10?.ToString("0.0") ?? "-") µg/m³</p>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-@current.GetPollutantColor(current.Pm10, 50)" 
+                             role="progressbar" style="width: @current.GetPercentage(current.Pm10, 50)%">
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            <div class="col-md-4">
+                <div class="card p-3 shadow-sm border-0">
+                    <h5>NO₂</h5>
+                    <p class="mb-2">Waarde: @(current.NitrogenDioxide?.ToString("0.0") ?? "-") µg/m³</p>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-@current.GetPollutantColor(current.NitrogenDioxide, 90)" 
+                             role="progressbar" style="width: @current.GetPercentage(current.NitrogenDioxide, 90)%">
+                        </div>
+                    </div>
+                </div>
             </div>
+        </div>
+
+        <!-- Grafiek Card met Dropdown Filter -->
+        <div class="card p-3 mt-4 shadow-sm border-0">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="card-title mb-0">Verloop Luchtkwaliteit (@Model.SelectedCity)</h5>
+                
+                <div>
+                    <select id="timeRangeFilter" class="form-select form-select-sm" style="width: auto;">
+                        <option value="today">Vandaag</option>
+                        <option value="2days">Afgelopen 2 dagen</option>
+                        <option value="7days" selected>Afgelopen 7 dagen</option>
+                    </select>
+                </div>
             </div>
-            <div class="card p-3">
-                <h5>NO₂</h5>
-                <p class="mb-0">Waarde: @(current.NitrogenDioxide?.ToString("0.0") ?? "-") µg/m³</p>
-                <div class="progress" style="height: 8px;">
-                <div class="progress-bar bg-@current.GetPollutantColor(current.NitrogenDioxide, 90)" 
-                    role="progressbar" style="width: @current.GetPercentage(current.NitrogenDioxide, 90)%">
+
+            <div style="height: 320px; width: 100%;">
+                <canvas id="airQualityChart"></canvas>
             </div>
-            </div>
+
+            <!-- Periode-stats onder de grafiek -->
+            <div class="row text-center mt-3 pt-3 border-top">
+                <div class="col-4">
+                    <small class="text-muted d-block">Min. AQI</small>
+                    <strong id="statMin">-</strong>
+                </div>
+                <div class="col-4">
+                    <small class="text-muted d-block">Gemiddelde AQI</small>
+                    <strong id="statAvg">-</strong>
+                </div>
+                <div class="col-4">
+                    <small class="text-muted d-block">Max. AQI</small>
+                    <strong id="statMax">-</strong>
+                </div>
             </div>
         </div>
     }
-   <!-- Grafiek Card met Dropdown Filter -->
-<div class="card p-3 mt-4 shadow-sm border-0">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="card-title mb-0">Verloop Luchtkwaliteit (@Model.SelectedCity)</h5>
-        
-        <div>
-            <select id="timeRangeFilter" class="form-select form-select-sm" style="width: auto;">
-                <option value="today">Vandaag</option>
-                <option value="2days">Afgelopen 2 dagen</option>
-                <option value="7days" selected>Afgelopen 7 dagen</option>
-            </select>
-        </div>
-    </div>
-
-    <div style="height: 320px; width: 100%;">
-        <canvas id="airQualityChart"></canvas>
-    </div>
-</div>
-    
 </div>
 
 @section Scripts {
@@ -114,115 +137,127 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const cityName = "@Model.SelectedCity";
-            const ctx = document.getElementById('airQualityChart').getContext('2d');
-            const filterDropdown = document.getElementById('timeRangeFilter');
-            let chartInstance = null; // Bewaart de huidige grafiek zodat we die kunnen verversen
+            // Alle samples die de MVC-controller uit de eigen AirPulse_API heeft opgehaald
+            const allSamples = @Html.Raw(Json.Serialize(Model.HistorySamples));
+            const canvas = document.getElementById('airQualityChart');
+            if (!canvas || !allSamples || allSamples.length === 0) return;
 
-            // Functie die de juiste startdatum berekent op basis van de dropdown-keuze
-            function buildApiUrl(range) {
-                let url = `/api/air/${encodeURIComponent(cityName)}`;
+            const ctx = canvas.getContext('2d');
+            const filterDropdown = document.getElementById('timeRangeFilter');
+            let chartInstance = null;
+
+            function filterSamples(range) {
                 const now = new Date();
-                let startDate = null;
+                let cutoff = null;
 
                 if (range === "today") {
-                    // Vanaf 00:00 uur vandaag
-                    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                    cutoff = new Date(now.getFullYear(), now.getMonth(), now.getDate());
                 } else if (range === "2days") {
-                    startDate = new Date(now.getTime() - (2 * 24 * 60 * 60 * 1000));
+                    cutoff = new Date(now.getTime() - (2 * 24 * 60 * 60 * 1000));
                 } else if (range === "7days") {
-                    startDate = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
+                    cutoff = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
                 }
 
-                return url;
+                if (!cutoff) return allSamples;
+                return allSamples.filter(s => new Date(s.timestamp) >= cutoff);
             }
 
-            // Functie om data op te halen en de grafiek te tekenen/updaten
-            async function loadChartData() {
+            function updateStats(samples) {
+                const aqiValues = samples.map(s => s.europeanAqi).filter(v => v != null);
+                if (aqiValues.length === 0) {
+                    document.getElementById('statMin').textContent = "-";
+                    document.getElementById('statAvg').textContent = "-";
+                    document.getElementById('statMax').textContent = "-";
+                    return;
+                }
+
+                const min = Math.min(...aqiValues);
+                const max = Math.max(...aqiValues);
+                const avg = (aqiValues.reduce((a, b) => a + b, 0) / aqiValues.length).toFixed(1);
+
+                document.getElementById('statMin').textContent = min;
+                document.getElementById('statAvg').textContent = avg;
+                document.getElementById('statMax').textContent = max;
+            }
+
+            function renderChart() {
                 const selectedRange = filterDropdown.value;
-                const apiUrl = buildApiUrl(selectedRange);
+                const samples = filterSamples(selectedRange);
+                updateStats(samples);
 
-                try {
-                    const response = await fetch(apiUrl);
-                    if (!response.ok) return;
+                const labels = samples.map(s => {
+                    const d = new Date(s.timestamp);
+                    return d.toLocaleDateString('nl-NL', { day: '2-digit', month: '2-digit' }) + ' ' +
+                           d.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
+                });
 
-                    const data = await response.json();
-                    const samples = data.samples || [];
+                const aqiData = samples.map(s => s.europeanAqi);
+                const pm25Data = samples.map(s => s.pm25 != null ? Math.round((s.pm25 / 25) * 100) : null);
+                const pm10Data = samples.map(s => s.pm10 != null ? Math.round((s.pm10 / 50) * 100) : null);
+                const no2Data = samples.map(s => s.nitrogenDioxide != null ? Math.round((s.nitrogenDioxide / 90) * 100) : null);
 
-                    const labels = samples.map(s => s.time);
-                    const aqiData = samples.map(s => s.aqi);
-                    const pm25Data = samples.map(s => s.pm25 != null ? Math.round((s.pm25 / 25) * 100) : null);
-                    const pm10Data = samples.map(s => s.pm10 != null ? Math.round((s.pm10 / 50) * 100) : null);
-                    const no2Data = samples.map(s => s.no2 != null ? Math.round((s.no2 / 90) * 100) : null);
-                    const yAxisLabel = 'Percentage van limiet (%) / Index';
+                if (chartInstance) {
+                    chartInstance.destroy();
+                }
 
-                    // Ruimt de oude grafiek eerst op voordat we een nieuwe tekenen
-                    if (chartInstance) {
-                        chartInstance.destroy();
-                    }
-
-                    chartInstance = new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: labels,
-                            datasets: [
-                                {
-                                    label: 'European AQI',
-                                    data: aqiData,
-                                    borderColor: '#0dcaf0',
-                                    backgroundColor: 'rgba(13, 202, 240, 0.1)',
-                                    tension: 0.3,
-                                    fill: false
-                                },
-                                {
-                                    label: 'PM 2.5 (µg/m³)',
-                                    data: pm25Data,
-                                    borderColor: '#ffc107',
-                                    tension: 0.3,
-                                    fill: false
-                                },
-                                {
-                                    label: 'PM 10 (µg/m³)',
-                                    data: pm10Data,
-                                    borderColor: '#fd7e14',
-                                    tension: 0.3,
-                                    fill: false
-                                },
-                                {
-                                    label: 'NO₂ (µg/m³)',
-                                    data: no2Data,
-                                    borderColor: '#dc3545',
-                                    tension: 0.3,
-                                    fill: false
-                                }
-                            ]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            interaction: {
-                                mode: 'index',
-                                intersect: false,
+                chartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'European AQI',
+                                data: aqiData,
+                                borderColor: '#0dcaf0',
+                                backgroundColor: 'rgba(13, 202, 240, 0.1)',
+                                tension: 0.3,
+                                fill: false
                             },
-                            scales: {
-                                y: {beginAtZero: true, title: { display: true, text: yAxisLabel }
-                                },
-                                x: {
-                                    title: { display: true, text: 'Tijdstip' }
-                                }
+                            {
+                                label: 'PM 2.5 (% limiet)',
+                                data: pm25Data,
+                                borderColor: '#ffc107',
+                                tension: 0.3,
+                                fill: false
+                            },
+                            {
+                                label: 'PM 10 (% limiet)',
+                                data: pm10Data,
+                                borderColor: '#fd7e14',
+                                tension: 0.3,
+                                fill: false
+                            },
+                            {
+                                label: 'NO₂ (% limiet)',
+                                data: no2Data,
+                                borderColor: '#dc3545',
+                                tension: 0.3,
+                                fill: false
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: { display: true, text: 'Percentage van limiet (%) / Index' }
+                            },
+                            x: {
+                                title: { display: true, text: 'Tijdstip' }
                             }
                         }
-                    });
-                } catch (err) {
-                    console.error("Fout bij ophalen grafiekdata:", err);
-                }
+                    }
+                });
             }
 
-            // 1. Luister naar wijzigingen in het dropdown-menu
-            filterDropdown.addEventListener("change", loadChartData);
-
-            // 2. Laad direct bij het openen van de pagina
-            loadChartData();
+            filterDropdown.addEventListener("change", renderChart);
+            renderChart();
         });
     </script>
 }

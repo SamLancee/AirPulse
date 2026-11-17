@@ -1,52 +1,36 @@
 using AirPulse.Services;
-using AirPulse.Data;
-using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-
-// Voeg de services toe aan de DI-container
+// Koppel de HttpClient aan jouw eigen backend API (Opdracht 2)
 builder.Services.AddHttpClient<AirPulseApiClient>(client =>
 {
     var baseUrl = builder.Configuration["AirPulseApi:BaseUrl"] ?? "http://localhost:5087/";
     client.BaseAddress = new Uri(baseUrl);
 });
+
 builder.Services.AddScoped<IAirQualityService, AirQualityService>();
 
-builder.Services.AddHostedService<AirQualityCollectorService>();
-
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite("Data Source=airpulse.db"));
 var app = builder.Build();
 
-// Maakt automatisch de database en tabellen aan als ze nog niet bestaan
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.EnsureCreated();
-}
-
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
+
 app.UseRouting();
 
 app.UseAuthorization();
 
-app.MapStaticAssets();
-
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
-
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();

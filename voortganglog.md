@@ -1,3 +1,12 @@
+17-11
+Backend opdracht 2 gekeken naar de logica van het ophalen. Start gemaakt met opdracht 3 zodat de frontend en backend met elkaar kunnen communiceren.
+
+13/16-11
+Gewerkt aan backend opdracht 2. Ik heb toen puur aan die bestanden gewerkt en niks aan deze repo. Vandaar nu deze update. 
+
+12-11
+Grafiek logica beter gemaakt. Nu alleen per uur data. Verder nieuwe map gemaakt voor opdracht 2 met dotnet new webapi
+
 11-11
 Gewerkt aan het weergeven van de opgeslagen data. Nu werkt het voor steden zelf, Bij het vergelijken moet ik dit nog toevoegen. 
 
