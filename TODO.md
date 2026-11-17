@@ -33,5 +33,10 @@ Controller & view
 -[x]Grafiek een dropdown menu geven voor verschillende opties
 
 Vervolgstappen
-- [ ]Grafieken toevoegen bij vergelijken
-- [ ]Nadenken over visualisatie van de grafiek, EAQI heeft bovenwaarde in plaats van grenswaarde. Nu kan EAQI onder de andere waarden liggen. 
+- [x]Grafieken toevoegen bij vergelijken
+- [x]Nadenken over visualisatie van de grafiek, EAQI heeft bovenwaarde in plaats van grenswaarde. Nu kan EAQI onder de andere waarden liggen. 
+
+-[x] Opdracht 2 backend maken
+-[ ] backend koppelen met frontend
+-[ ] Check alle visualisaties en of alle data kloppend is
+-[ ] Edge cases nalopen en kijken of alles wordt afgehangen in geval van error

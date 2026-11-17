@@ -8,7 +8,11 @@ builder.Services.AddControllersWithViews();
 
 
 // Voeg de services toe aan de DI-container
-builder.Services.AddHttpClient<OpenMeteoClient>();
+builder.Services.AddHttpClient<AirPulseApiClient>(client =>
+{
+    var baseUrl = builder.Configuration["AirPulseApi:BaseUrl"] ?? "http://localhost:5087/";
+    client.BaseAddress = new Uri(baseUrl);
+});
 builder.Services.AddScoped<IAirQualityService, AirQualityService>();
 
 builder.Services.AddHostedService<AirQualityCollectorService>();
