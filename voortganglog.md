@@ -1,3 +1,6 @@
+18-11
+Backend werkt nu met frontend. Nu alleen bestanden zo gaan omzetten dan het op de .shared methode staat. Met name veel over code gegaan en gekekn wat allemaal dubbel in frontend en backend staat. 
+
 17-11
 Backend opdracht 2 gekeken naar de logica van het ophalen. Start gemaakt met opdracht 3 zodat de frontend en backend met elkaar kunnen communiceren.
 

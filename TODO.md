@@ -37,7 +37,7 @@ Vervolgstappen
 - [x]Nadenken over visualisatie van de grafiek, EAQI heeft bovenwaarde in plaats van grenswaarde. Nu kan EAQI onder de andere waarden liggen. 
 
 -[x] Opdracht 2 backend maken
--[ ] backend koppelen met frontend
+-[x] backend koppelen met frontend
 -[ ] Check alle visualisaties en of alle data kloppend is
 -[ ] Edge cases nalopen en kijken of alles wordt afgehangen in geval van error
--[ ] Bestanden zo inrichten dat frontend los van backend kan draaien .shared 
+-[ ] Bestanden zo inrichten dat frontend los van backend kan draaien .shared (bestaand uit: AirSample, CityLocation, AirQualitySample)
