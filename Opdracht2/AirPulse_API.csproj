@@ -15,4 +15,8 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.*" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\AirPulse.Shared\AirPulse.Shared.csproj" />
+  </ItemGroup>
+
 </Project>

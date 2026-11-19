@@ -1,5 +1,6 @@
 using AirPulse_API.Models;
 using AirPulse_API.Services;
+using AirPulse.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 

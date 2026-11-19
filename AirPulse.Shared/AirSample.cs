@@ -1,8 +1,8 @@
 using System;
 
-namespace AirPulse.Models;
+namespace AirPulse.Shared;
 
-public class AirQualitySample
+public class AirSample
 {
     public int Id { get; set; }
     public string City { get; set; } = string.Empty;
@@ -13,6 +13,7 @@ public class AirQualitySample
     public double? NitrogenDioxide { get; set; }
     public DateTime LastUpdated { get; set; }
 
+    // Berekende UI-properties
     public string FormattedTime
     {
         get
@@ -20,19 +21,14 @@ public class AirQualitySample
             var today = DateTime.Today;
 
             if (Timestamp.Date == today)
-            {
                 return $"vandaag om {Timestamp:HH:mm}";
-            }
             if (Timestamp.Date == today.AddDays(-1))
-            {
                 return $"gisteren om {Timestamp:HH:mm}";
-            }
 
             return $"{Timestamp:dd-MM-yyyy} om {Timestamp:HH:mm}";
         }
     }
 
-    // Bepaal de tekstuele status op basis van European AQI banden
     public string AqiCategory => EuropeanAqi switch
     {
         <= 20 => "Zeer goed",
@@ -44,7 +40,6 @@ public class AirQualitySample
         _ => "Onbekend"
     };
 
-    // Bepaal de Bootstrap kleurklasse
     public string AqiBadgeClass => EuropeanAqi switch
     {
         <= 20 => "primary",   // Groen/Blauw
@@ -53,6 +48,17 @@ public class AirQualitySample
         <= 80 => "danger",    // Rood / Oranje
         > 80 => "dark",       // Donkerrood / Zwart
         _ => "secondary"
+    };
+
+    public string HealthAdvice => EuropeanAqi switch
+    {
+        <= 20 => "Uitstekende luchtkwaliteit. Ideaal voor alle buitenactiviteiten.",
+        <= 40 => "Goede luchtkwaliteit. Geen beperkingen voor buitenactiviteiten.",
+        <= 60 => "Matige luchtkwaliteit. Gevoelige groepen kunnen lichte klachten ervaren bij langdurige inspanning.",
+        <= 80 => "Slechte luchtkwaliteit. Beperk zware inspanning buitenshuis bij luchtwegklachten.",
+        <= 100 => "Zeer slechte luchtkwaliteit. Vermijd intensieve buitenactiviteiten.",
+        > 100 => "Extreem slechte luchtkwaliteit. Blijf zoveel mogelijk binnen.",
+        _ => "Geen gezondheidsadvies beschikbaar."
     };
 
     public int GetPercentage(double? value, double threshold)

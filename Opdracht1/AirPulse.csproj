@@ -10,4 +10,8 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.14" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\AirPulse.Shared\AirPulse.Shared.csproj" />
+  </ItemGroup>
+
 </Project>

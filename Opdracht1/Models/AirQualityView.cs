@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
+using AirPulse.Shared;
 
 namespace AirPulse.Models;
 
@@ -10,10 +11,10 @@ public class AirQualityView
     public List<SelectListItem> AvailableCities { get; set; } = new();
     
     // De meest recente meting (voor je grote AQI badge & cards)
-    public AirQualitySample? LatestSample { get; set; }
+    public AirSample? LatestSample { get; set; }
     
     // Alle metingen in de gekozen periode (voor je Chart.js grafiek & min/max/avg)
-    public List<AirQualitySample> HistorySamples { get; set; } = new();
+    public List<AirSample> HistorySamples { get; set; } = new();
     
     public string? ErrorMessage { get; set; }
 }

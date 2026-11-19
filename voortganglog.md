@@ -1,3 +1,6 @@
+19-11
+Nu ook shared bestand gemaakt en daarnaar verwijzen in frontend en backend. 2 bestanden zijn hierdoor weg. Verder gewerkt aan algehele logica + nagedacht over vervolg stappen. 
+
 18-11
 Backend werkt nu met frontend. Nu alleen bestanden zo gaan omzetten dan het op de .shared methode staat. Met name veel over code gegaan en gekekn wat allemaal dubbel in frontend en backend staat. 
 

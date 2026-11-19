@@ -8,6 +8,7 @@ Algeheel layout scherm met bovenaan de Luchtkwaliteit voor die specifieke stad. 
 
 Extra's
 Advieslabel
+Periode stats
 Vergelijk 2 steden
 
 Opzet van de verschillende classes:

@@ -38,6 +38,10 @@ Vervolgstappen
 
 -[x] Opdracht 2 backend maken
 -[x] backend koppelen met frontend
--[ ] Check alle visualisaties en of alle data kloppend is
--[ ] Edge cases nalopen en kijken of alles wordt afgehangen in geval van error
--[ ] Bestanden zo inrichten dat frontend los van backend kan draaien .shared (bestaand uit: AirSample, CityLocation, AirQualitySample)
+-[x] Opschonen bestanden zodat niks dubbel staat
+-[x] Check alle visualisaties en of alle data kloppend is
+-[ ] Edge cases nalopen en kijken of alles wordt afgehangen in geval van error - lastig wat ik nog moet checken
+-[x] Bestanden zo inrichten dat frontend los van backend kan draaien .shared (bestaand uit: AirSample, CityLocation, AirQualitySample)
+-[] Forecast waardes opslaan 
+-[] Forecast waardes vergelijken met nieuwe data
+-[] Vergelijking maken tussen 2 steden met AQI waarde en welke dan beter is 

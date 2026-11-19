@@ -1,4 +1,5 @@
 using AirPulse_API.Models;
+using AirPulse.Shared;
 
 namespace AirPulse_API.Services;
 

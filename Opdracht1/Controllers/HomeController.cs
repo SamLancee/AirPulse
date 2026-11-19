@@ -1,5 +1,6 @@
 using AirPulse.Models;
 using AirPulse.Services;
+using AirPulse.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -27,8 +28,8 @@ public class HomeController : Controller
 
         // Default startdatum op 2 dagen geleden zetten als er niets is gekozen, 
         // zodat je direct de opgebouwde historie in de grafiek ziet
-        var queryStart = start ?? DateTime.Today.AddDays(-2);
-        var queryEnd = end ?? queryStart.AddDays(7);
+        var queryStart = start ?? DateTime.Today.AddDays(-7);
+        var queryEnd = end ?? DateTime.Today.AddDays(1);
 
         // 3. Haal de historie + actuele metingen op uit jouw eigen API
         var samples = await _airQualityService.GetAirQualityHistoryAsync(selectedCityName, queryStart, queryEnd);
@@ -64,8 +65,8 @@ public class HomeController : Controller
         cityA ??= availableCities.FirstOrDefault() ?? "Amsterdam";
         cityB ??= availableCities.Skip(1).FirstOrDefault() ?? "Parijs";
 
-        var queryStart = start ?? DateTime.Today.AddDays(-2);
-        var queryEnd = end ?? queryStart.AddDays(7);
+        var queryStart = start ?? DateTime.Today.AddDays(-7);
+        var queryEnd = end ?? DateTime.Today.AddDays(1);
 
         // Haal beide steden parallel op uit jouw eigen backend API
         var taskA = _airQualityService.GetAirQualityHistoryAsync(cityA, queryStart, queryEnd);

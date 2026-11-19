@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using AirPulse.Shared;
 
 namespace AirPulse_API.Models;
 

@@ -1,4 +1,5 @@
 using AirPulse.Services;
+using AirPulse.Shared;
 
 var builder = WebApplication.CreateBuilder(args);
 

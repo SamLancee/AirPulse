@@ -1,6 +1,7 @@
 using AirPulse_API.Data;
 using AirPulse_API.Models;
 using AirPulse_API.Services;
+using AirPulse.Shared;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);

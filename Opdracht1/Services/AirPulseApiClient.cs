@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using AirPulse.Models;
+using AirPulse.Shared;
 
 namespace AirPulse.Services;
 
@@ -25,7 +26,7 @@ public class AirPulseApiClient
         }
     }
 
-    public async Task<List<AirQualitySample>> FetchAirQualityAsync(string city, DateTime? start = null, DateTime? end = null)
+    public async Task<List<AirSample>> FetchAirQualityAsync(string city, DateTime? start = null, DateTime? end = null)
     {
         try
         {
@@ -40,12 +41,12 @@ public class AirPulseApiClient
             if (queryParams.Count > 0)
                 url += "?" + string.Join("&", queryParams);
 
-            var samples = await _httpClient.GetFromJsonAsync<List<AirQualitySample>>(url);
-            return samples ?? new List<AirQualitySample>();
+            var samples = await _httpClient.GetFromJsonAsync<List<AirSample>>(url);
+            return samples ?? new List<AirSample>();
         }
         catch
         {
-            return new List<AirQualitySample>();
+            return new List<AirSample>();
         }
     }
 }

@@ -1,4 +1,5 @@
 using AirPulse_API.Models;
+using AirPulse.Shared;
 using Microsoft.EntityFrameworkCore;
 
 namespace AirPulse_API.Data;

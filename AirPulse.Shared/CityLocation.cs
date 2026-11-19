@@ -1,4 +1,4 @@
-namespace AirPulse_API.Models;
+namespace AirPulse.Shared;
 
 public class AirPulseSettings
 {

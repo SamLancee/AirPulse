@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/Opdracht1/">
+    <Project Path="Opdracht1/AirPulse.csproj" />
+  </Folder>
+  <Folder Name="/Opdracht2/">
+    <Project Path="Opdracht2/AirPulse_API.csproj" />
+  </Folder>
+  <Project Path="AirPulse.Shared/AirPulse.Shared.csproj" />
+</Solution>
