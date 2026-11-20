@@ -1,3 +1,6 @@
+20-11 
+Forecast data nu opgeslagen en het is nu zichtbaar voor 3 dagen in de toekomst. Maandag goed testen hoe het er samen uit gaat zien.
+
 19-11
 Nu ook shared bestand gemaakt en daarnaar verwijzen in frontend en backend. 2 bestanden zijn hierdoor weg. Verder gewerkt aan algehele logica + nagedacht over vervolg stappen. 
 

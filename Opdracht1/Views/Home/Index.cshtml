@@ -135,7 +135,6 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            // Alle samples die de MVC-controller uit de eigen AirPulse_API heeft opgehaald
             const allSamples = @Html.Raw(Json.Serialize(Model.HistorySamples));
             const canvas = document.getElementById('airQualityChart');
             if (!canvas || !allSamples || allSamples.length === 0) return;
@@ -160,8 +159,8 @@
                 return allSamples.filter(s => new Date(s.timestamp) >= cutoff);
             }
 
-            function updateStats(samples) {
-                const aqiValues = samples.map(s => s.europeanAqi).filter(v => v != null);
+            function updateStats(actualSamples) {
+                const aqiValues = actualSamples.map(s => s.europeanAqi).filter(v => v != null);
                 if (aqiValues.length === 0) {
                     document.getElementById('statMin').textContent = "-";
                     document.getElementById('statAvg').textContent = "-";
@@ -180,19 +179,51 @@
 
             function renderChart() {
                 const selectedRange = filterDropdown.value;
-                const samples = filterSamples(selectedRange);
-                updateStats(samples);
+                const filtered = filterSamples(selectedRange);
 
-                const labels = samples.map(s => {
-                    const d = new Date(s.timestamp);
+                // Splits echte metingen en forecasts in twee lookup-mappen op tijdstip
+                const actualMap = new Map();
+                const forecastMap = new Map();
+
+                filtered.forEach(s => {
+                    // Normaliseer timestamp (bijv. "2026-11-20T14:00:00") zodat beide exact matchen
+                    const key = new Date(s.timestamp).toISOString();
+                    if (s.isForecast) {
+                        forecastMap.set(key, s);
+                    } else {
+                        actualMap.set(key, s);
+                    }
+                });
+
+                // Bereken de stats op basis van de daadwerkelijke metingen
+                updateStats(Array.from(actualMap.values()));
+
+                // Verzamel alle unieke tijdstempels (verleden + toekomst) en sorteer chronologisch
+                const allKeys = Array.from(new Set([...actualMap.keys(), ...forecastMap.keys()]))
+                    .sort((a, b) => new Date(a) - new Date(b));
+
+                const labels = allKeys.map(key => {
+                    const d = new Date(key);
                     return d.toLocaleDateString('nl-NL', { day: '2-digit', month: '2-digit' }) + ' ' +
                            d.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
                 });
 
-                const aqiData = samples.map(s => s.europeanAqi);
-                const pm25Data = samples.map(s => s.pm25 != null ? Math.round((s.pm25 / 25) * 100) : null);
-                const pm10Data = samples.map(s => s.pm10 != null ? Math.round((s.pm10 / 50) * 100) : null);
-                const no2Data = samples.map(s => s.nitrogenDioxide != null ? Math.round((s.nitrogenDioxide / 90) * 100) : null);
+                // Bouw de datareeksen op per uniek tijdstip (null als er voor dat uur geen record van dat type is)
+                const actualAqiData = allKeys.map(k => actualMap.get(k)?.europeanAqi ?? null);
+                const forecastAqiData = allKeys.map(k => forecastMap.get(k)?.europeanAqi ?? null);
+
+                const pm25Data = allKeys.map(k => {
+                    const s = actualMap.get(k);
+                    return s?.pm25 != null ? Math.round((s.pm25 / 25) * 100) : null;
+                });
+                const pm10Data = allKeys.map(k => {
+                    const s = actualMap.get(k);
+                    return s?.pm10 != null ? Math.round((s.pm10 / 50) * 100) : null;
+                });
+                const no2Data = allKeys.map(k => {
+                    const s = actualMap.get(k);
+                    return s?.nitrogenDioxide != null ? Math.round((s.nitrogenDioxide / 90) * 100) : null;
+                });
 
                 if (chartInstance) {
                     chartInstance.destroy();
@@ -204,12 +235,23 @@
                         labels: labels,
                         datasets: [
                             {
-                                label: 'European AQI',
-                                data: aqiData,
+                                label: 'European AQI (Werkelijk)',
+                                data: actualAqiData,
                                 borderColor: '#0dcaf0',
                                 backgroundColor: 'rgba(13, 202, 240, 0.1)',
                                 tension: 0.3,
-                                fill: false
+                                fill: false,
+                                spanGaps: false
+                            },
+                            {
+                                label: 'European AQI (Forecast)',
+                                data: forecastAqiData,
+                                borderColor: '#6f42c1',
+                                backgroundColor: 'rgba(111, 66, 193, 0.1)',
+                                borderDash: [6, 4], // Stippellijn voor de voorspelling
+                                tension: 0.3,
+                                fill: false,
+                                spanGaps: false
                             },
                             {
                                 label: 'PM 2.5 (% limiet)',

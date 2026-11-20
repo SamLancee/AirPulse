@@ -26,7 +26,7 @@ public class OpenMeteoAirClient : IAirQualityService
         var lat = city.Latitude.ToString(CultureInfo.InvariantCulture);
         var lon = city.Longitude.ToString(CultureInfo.InvariantCulture);
 
-        var url = $"https://air-quality-api.open-meteo.com/v1/air-quality?latitude={lat}&longitude={lon}&hourly=european_aqi,pm2_5,pm10,nitrogen_dioxide&past_days=7&forecast_days=1&timezone=Europe%2FAmsterdam";
+        var url = $"https://air-quality-api.open-meteo.com/v1/air-quality?latitude={lat}&longitude={lon}&hourly=european_aqi,pm2_5,pm10,nitrogen_dioxide&past_days=7&forecast_days=4&timezone=Europe%2FAmsterdam";
 
         var response = await _httpClient.GetFromJsonAsync<OpenMeteoResponse>(url, cancellationToken);
 
@@ -44,8 +44,7 @@ public class OpenMeteoAirClient : IAirQualityService
             if (!DateTime.TryParse(response.Hourly.Time[i], out var timestamp))
                 continue;
 
-            if (timestamp > localNow)
-                continue;
+            bool isForecast = timestamp > localNow;
 
             var existingSample = await _dbContext.AirSamples
                 .FirstOrDefaultAsync(s => s.City == city.Name && s.Timestamp == timestamp, cancellationToken);
@@ -70,6 +69,7 @@ public class OpenMeteoAirClient : IAirQualityService
                     Pm25 = response.Hourly.Pm25.ElementAtOrDefault(i),
                     Pm10 = response.Hourly.Pm10.ElementAtOrDefault(i),
                     NitrogenDioxide = response.Hourly.NitrogenDioxide.ElementAtOrDefault(i),
+                    IsForecast = isForecast,
                     LastUpdated = now
                 });
             }

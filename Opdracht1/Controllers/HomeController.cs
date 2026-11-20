@@ -29,11 +29,11 @@ public class HomeController : Controller
         // Default startdatum op 2 dagen geleden zetten als er niets is gekozen, 
         // zodat je direct de opgebouwde historie in de grafiek ziet
         var queryStart = start ?? DateTime.Today.AddDays(-7);
-        var queryEnd = end ?? DateTime.Today.AddDays(1);
+        var queryEnd = end ?? DateTime.Today.AddDays(4);
 
         // 3. Haal de historie + actuele metingen op uit jouw eigen API
         var samples = await _airQualityService.GetAirQualityHistoryAsync(selectedCityName, queryStart, queryEnd);
-        var latestSample = samples.LastOrDefault();
+        var latestSample = samples.LastOrDefault(s => !s.IsForecast);
 
         // 4. Bouw het ViewModel
         var viewModel = new AirQualityView
@@ -66,7 +66,7 @@ public class HomeController : Controller
         cityB ??= availableCities.Skip(1).FirstOrDefault() ?? "Parijs";
 
         var queryStart = start ?? DateTime.Today.AddDays(-7);
-        var queryEnd = end ?? DateTime.Today.AddDays(1);
+        var queryEnd = end ?? DateTime.Today.AddDays(4);
 
         // Haal beide steden parallel op uit jouw eigen backend API
         var taskA = _airQualityService.GetAirQualityHistoryAsync(cityA, queryStart, queryEnd);

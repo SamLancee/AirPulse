@@ -11,6 +11,7 @@ public class AirSample
     public double? Pm25 { get; set; }
     public double? Pm10 { get; set; }
     public double? NitrogenDioxide { get; set; }
+    public bool IsForecast { get; set; }
     public DateTime LastUpdated { get; set; }
 
     // Berekende UI-properties
