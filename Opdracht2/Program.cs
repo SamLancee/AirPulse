@@ -31,6 +31,12 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AirPulseDbContext>();
     db.Database.EnsureCreated();
+
+    db.Database.ExecuteSqlRaw("""
+        DROP INDEX IF EXISTS "IX_AirSamples_City_Timestamp";
+        CREATE UNIQUE INDEX IF NOT EXISTS "IX_AirSamples_City_Timestamp_IsForecast" 
+        ON "AirSamples" ("City", "Timestamp", "IsForecast");
+    """);
 }
 
 if (app.Environment.IsDevelopment())

@@ -40,40 +40,43 @@ public class OpenMeteoAirClient : IAirQualityService
         var localNow = DateTime.Now;
 
         for (int i = 0; i < response.Hourly.Time.Count; i++)
+{
+    if (!DateTime.TryParse(response.Hourly.Time[i], out var timestamp))
+        continue;
+
+    bool isForecast = timestamp > localNow;
+
+    // 1. Zoek specifiek naar het record van DIT type (Forecast OF Werkelijk)
+    var existingSample = await _dbContext.AirSamples
+        .FirstOrDefaultAsync(s => s.City == city.Name 
+                               && s.Timestamp == timestamp 
+                               && s.IsForecast == isForecast, cancellationToken);
+
+    if (existingSample != null)
+    {
+        // Update alleen een bestaand record van hetzelfde type
+        existingSample.EuropeanAqi = response.Hourly.EuropeanAqi.ElementAtOrDefault(i);
+        existingSample.Pm25 = isForecast ? null : response.Hourly.Pm25.ElementAtOrDefault(i);
+        existingSample.Pm10 = isForecast ? null : response.Hourly.Pm10.ElementAtOrDefault(i);
+        existingSample.NitrogenDioxide = isForecast ? null : response.Hourly.NitrogenDioxide.ElementAtOrDefault(i);
+        existingSample.LastUpdated = now;
+    }
+    else
+    {
+        // 2. Bestaat er nog geen record met deze IsForecast-waarde? Voeg een NIEUWE rij toe!
+        _dbContext.AirSamples.Add(new AirSample
         {
-            if (!DateTime.TryParse(response.Hourly.Time[i], out var timestamp))
-                continue;
-
-            bool isForecast = timestamp > localNow;
-
-            var existingSample = await _dbContext.AirSamples
-                .FirstOrDefaultAsync(s => s.City == city.Name && s.Timestamp == timestamp, cancellationToken);
-
-            if (existingSample != null)
-            {
-                // Bestaande gegevens overschrijven
-                existingSample.EuropeanAqi = response.Hourly.EuropeanAqi.ElementAtOrDefault(i);
-                existingSample.Pm25 = response.Hourly.Pm25.ElementAtOrDefault(i);
-                existingSample.Pm10 = response.Hourly.Pm10.ElementAtOrDefault(i);
-                existingSample.NitrogenDioxide = response.Hourly.NitrogenDioxide.ElementAtOrDefault(i);
-                existingSample.LastUpdated = now;
-            }
-            else
-            {
-                // Nieuw record aanmaken
-                _dbContext.AirSamples.Add(new AirSample
-                {
-                    City = city.Name,
-                    Timestamp = timestamp,
-                    EuropeanAqi = response.Hourly.EuropeanAqi.ElementAtOrDefault(i),
-                    Pm25 = response.Hourly.Pm25.ElementAtOrDefault(i),
-                    Pm10 = response.Hourly.Pm10.ElementAtOrDefault(i),
-                    NitrogenDioxide = response.Hourly.NitrogenDioxide.ElementAtOrDefault(i),
-                    IsForecast = isForecast,
-                    LastUpdated = now
-                });
-            }
-        }
+            City = city.Name,
+            Timestamp = timestamp,
+            IsForecast = isForecast,
+            EuropeanAqi = response.Hourly.EuropeanAqi.ElementAtOrDefault(i),
+            Pm25 = isForecast ? null : response.Hourly.Pm25.ElementAtOrDefault(i),
+            Pm10 = isForecast ? null : response.Hourly.Pm10.ElementAtOrDefault(i),
+            NitrogenDioxide = isForecast ? null : response.Hourly.NitrogenDioxide.ElementAtOrDefault(i),
+            LastUpdated = now
+        });
+    }
+}
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         _logger.LogInformation("Luchtkwaliteit voor {City} succesvol gesynchroniseerd.", city.Name);

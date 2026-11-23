@@ -43,5 +43,5 @@ Vervolgstappen
 -[ ] Edge cases nalopen en kijken of alles wordt afgehangen in geval van error - lastig wat ik nog moet checken
 -[x] Bestanden zo inrichten dat frontend los van backend kan draaien .shared (bestaand uit: AirSample, CityLocation, AirQualitySample)
 -[x] Forecast waardes opslaan 
--[] Forecast waardes vergelijken met nieuwe data - moet nog beter testen, maar dit komt maandag als ik van het hele weekend forecast data en oude data heb. 
+-[x] Forecast waardes vergelijken met nieuwe data - moet nog beter testen, maar dit komt maandag als ik van het hele weekend forecast data en oude data heb. 
 -[] Vergelijking maken tussen 2 steden met AQI waarde en welke dan beter is 

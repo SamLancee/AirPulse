@@ -177,17 +177,21 @@
                 document.getElementById('statMax').textContent = max;
             }
 
+            function getHourKey(timestampStr) {
+                const d = new Date(timestampStr);
+                const pad = n => String(n).padStart(2, '0');
+                return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:00`;
+            }
+            
             function renderChart() {
                 const selectedRange = filterDropdown.value;
                 const filtered = filterSamples(selectedRange);
 
-                // Splits echte metingen en forecasts in twee lookup-mappen op tijdstip
                 const actualMap = new Map();
                 const forecastMap = new Map();
 
                 filtered.forEach(s => {
-                    // Normaliseer timestamp (bijv. "2026-11-20T14:00:00") zodat beide exact matchen
-                    const key = new Date(s.timestamp).toISOString();
+                    const key = getHourKey(s.timestamp);
                     if (s.isForecast) {
                         forecastMap.set(key, s);
                     } else {
@@ -195,20 +199,18 @@
                     }
                 });
 
-                // Bereken de stats op basis van de daadwerkelijke metingen
                 updateStats(Array.from(actualMap.values()));
 
-                // Verzamel alle unieke tijdstempels (verleden + toekomst) en sorteer chronologisch
-                const allKeys = Array.from(new Set([...actualMap.keys(), ...forecastMap.keys()]))
-                    .sort((a, b) => new Date(a) - new Date(b));
+                // Alle unieke uren (zowel verleden met dubbele data als toekomst) chronologisch sorteren
+                const allKeys = Array.from(new Set([...actualMap.keys(), ...forecastMap.keys()])).sort();
 
                 const labels = allKeys.map(key => {
-                    const d = new Date(key);
-                    return d.toLocaleDateString('nl-NL', { day: '2-digit', month: '2-digit' }) + ' ' +
-                           d.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
+                    // Maak van "2026-11-23 14:00" netjes "23-11 14:00"
+                    const [datePart, timePart] = key.split(' ');
+                    const [, month, day] = datePart.split('-');
+                    return `${day}-${month} ${timePart}`;
                 });
 
-                // Bouw de datareeksen op per uniek tijdstip (null als er voor dat uur geen record van dat type is)
                 const actualAqiData = allKeys.map(k => actualMap.get(k)?.europeanAqi ?? null);
                 const forecastAqiData = allKeys.map(k => forecastMap.get(k)?.europeanAqi ?? null);
 

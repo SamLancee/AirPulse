@@ -1,3 +1,6 @@
+23-11
+Weergave van zowel forecast data als normale data is nu tegelijkertijd mogelijk. 
+
 20-11 
 Forecast data nu opgeslagen en het is nu zichtbaar voor 3 dagen in de toekomst. Maandag goed testen hoe het er samen uit gaat zien.
 

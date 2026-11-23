@@ -13,7 +13,7 @@ public class AirPulseDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AirSample>()
-            .HasIndex(s => new { s.City, s.Timestamp })
-            .IsUnique();
+        .HasIndex(s => new { s.City, s.Timestamp, s.IsForecast })
+        .IsUnique();
     }
 }
