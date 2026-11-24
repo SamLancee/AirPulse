@@ -1,3 +1,6 @@
+24-11
+Tussen 2 steden weergave aangepast. Verder bezig geweest met de forecast, dingen kloptte toch niet helemaal. 
+
 23-11
 Weergave van zowel forecast data als normale data is nu tegelijkertijd mogelijk. 
 

@@ -77,8 +77,8 @@ public class HomeController : Controller
         var samplesA = await taskA;
         var samplesB = await taskB;
 
-        var latestA = samplesA.LastOrDefault();
-        var latestB = samplesB.LastOrDefault();
+        var latestA = samplesA.LastOrDefault(s => !s.IsForecast);
+        var latestB = samplesB.LastOrDefault(s => !s.IsForecast);
 
         var viewModel = new CompareAirQualityViewModel
         {

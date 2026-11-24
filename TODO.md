@@ -40,8 +40,11 @@ Vervolgstappen
 -[x] backend koppelen met frontend
 -[x] Opschonen bestanden zodat niks dubbel staat
 -[x] Check alle visualisaties en of alle data kloppend is
--[ ] Edge cases nalopen en kijken of alles wordt afgehangen in geval van error - lastig wat ik nog moet checken
+-[x] Edge cases nalopen en kijken of alles wordt afgehangen in geval van error - lastig wat ik nog moet checken
 -[x] Bestanden zo inrichten dat frontend los van backend kan draaien .shared (bestaand uit: AirSample, CityLocation, AirQualitySample)
 -[x] Forecast waardes opslaan 
--[x] Forecast waardes vergelijken met nieuwe data - moet nog beter testen, maar dit komt maandag als ik van het hele weekend forecast data en oude data heb. 
--[] Vergelijking maken tussen 2 steden met AQI waarde en welke dan beter is 
+-[] Forecast waardes vergelijken met nieuwe data - moet nog beter testen
+-[x] Vergelijking maken tussen 2 steden met AQI waarde en welke dan beter is 
+-[] in weergave de optie geven voor forecast of andere data. 
+-[] denk na over test mogelijkheden en schrijf dit in een los bestandje op
+-[x] shared ook opsplitsen in model/services

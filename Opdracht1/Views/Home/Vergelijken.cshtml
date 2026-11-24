@@ -46,6 +46,13 @@
         </div>
     }
 
+    @if (Model.LatestCityA != null && Model.LatestCityB != null)
+{
+    <div class="alert alert-light border shadow-sm text-center mb-4">
+        <span class="badge bg-success me-2">Conclusie</span>
+        <strong>@Model.ComparisonSummary</strong>
+    </div>
+}
     <!-- Vergelijking in twee kolommen -->
     <div class="row g-4">
         <!-- Kolom Stad A -->
