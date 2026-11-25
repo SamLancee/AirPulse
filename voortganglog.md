@@ -1,3 +1,6 @@
+25-11
+Weergave van de grafiek aangepast, verschillende test cases opgeschreven
+
 24-11
 Tussen 2 steden weergave aangepast. Verder bezig geweest met de forecast, dingen kloptte toch niet helemaal. 
 

@@ -103,6 +103,7 @@
                         <option value="today">Vandaag</option>
                         <option value="2days">Afgelopen 2 dagen</option>
                         <option value="7days" selected>Afgelopen 7 dagen</option>
+                        <option value="forecast">Voorspelling</option>
                     </select>
                 </div>
             </div>
@@ -144,20 +145,31 @@
             let chartInstance = null;
 
             function filterSamples(range) {
-                const now = new Date();
-                let cutoff = null;
+            const now = new Date();
 
-                if (range === "today") {
-                    cutoff = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-                } else if (range === "2days") {
-                    cutoff = new Date(now.getTime() - (2 * 24 * 60 * 60 * 1000));
-                } else if (range === "7days") {
-                    cutoff = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
-                }
-
-                if (!cutoff) return allSamples;
-                return allSamples.filter(s => new Date(s.timestamp) >= cutoff);
+            if (range === "forecast") {
+                // Alleen toekomstige forecast-records tonen (vanaf nu vooruit)
+                return allSamples.filter(s => s.isForecast && new Date(s.timestamp) >= now);
             }
+
+            let cutoff = null;
+            if (range === "today") {
+                cutoff = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            } else if (range === "2days") {
+                cutoff = new Date(now.getTime() - (2 * 24 * 60 * 60 * 1000));
+            } else if (range === "7days") {
+                cutoff = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
+            }
+
+            // Voor Vandaag / Afgelopen 2 dagen / Afgelopen 7 dagen:
+            // Stop bij 'now' zodat de toekomstige 3 dagen er niet meer achteraan geplakt worden.
+            // (Bewaarde forecasts uit het verleden tussen cutoff en now blijven wel meedoen voor de vergelijking)
+            return allSamples.filter(s => {
+                const sampleDate = new Date(s.timestamp);
+                if (cutoff && sampleDate < cutoff) return false;
+                return sampleDate <= now;
+            });
+        }
 
             function updateStats(actualSamples) {
                 const aqiValues = actualSamples.map(s => s.europeanAqi).filter(v => v != null);
@@ -199,7 +211,10 @@
                     }
                 });
 
-                updateStats(Array.from(actualMap.values()));
+                const statsSource = selectedRange === "forecast" 
+                ? Array.from(forecastMap.values()) 
+                : Array.from(actualMap.values());
+                updateStats(statsSource);
 
                 // Alle unieke uren (zowel verleden met dubbele data als toekomst) chronologisch sorteren
                 const allKeys = Array.from(new Set([...actualMap.keys(), ...forecastMap.keys()])).sort();

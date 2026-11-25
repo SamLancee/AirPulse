@@ -166,6 +166,7 @@
                     <option value="today">Vandaag</option>
                     <option value="2days">Afgelopen 2 dagen</option>
                     <option value="7days" selected>Afgelopen 7 dagen</option>
+                    <option value="forecast">Voorspelling</option>
                 </select>
             </div>
 
@@ -193,10 +194,21 @@
             const filterDropdown = document.getElementById('compareTimeFilter');
             let chartInstance = null;
 
+            function getHourKey(timestampStr) {
+                const d = new Date(timestampStr);
+                const pad = n => String(n).padStart(2, '0');
+                return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:00`;
+            }
+
             function filterByRange(samples, range) {
                 const now = new Date();
-                let cutoff = null;
 
+                if (range === "forecast") {
+                    // Alleen toekomstige voorspellingen (vanaf nu vooruit)
+                    return samples.filter(s => s.isForecast && new Date(s.timestamp) >= now);
+                }
+
+                let cutoff = null;
                 if (range === "today") {
                     cutoff = new Date(now.getFullYear(), now.getMonth(), now.getDate());
                 } else if (range === "2days") {
@@ -205,25 +217,36 @@
                     cutoff = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
                 }
 
-                if (!cutoff) return samples;
-                return samples.filter(s => new Date(s.timestamp) >= cutoff);
+                // Voor Vandaag / 2 dagen / 7 dagen: alleen werkelijke metingen (!s.isForecast) tot aan nu
+                return samples.filter(s => {
+                    if (s.isForecast) return false;
+                    const sampleDate = new Date(s.timestamp);
+                    if (cutoff && sampleDate < cutoff) return false;
+                    return sampleDate <= now;
+                });
             }
 
             function renderCompareChart() {
                 const range = filterDropdown.value;
+                const isForecastMode = range === "forecast";
+
                 const filteredA = filterByRange(samplesA, range);
                 const filteredB = filterByRange(samplesB, range);
 
-                // Gebruik de tijdstempels van Stad A (of B als A leeg is) voor de X-as
-                const baseSeries = filteredA.length >= filteredB.length ? filteredA : filteredB;
-                const labels = baseSeries.map(s => {
-                    const d = new Date(s.timestamp);
-                    return d.toLocaleDateString('nl-NL', { day: '2-digit', month: '2-digit' }) + ' ' +
-                           d.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
+                // Koppel beide steden op exact hetzelfde uur (YYYY-MM-DD HH:00)
+                const mapA = new Map(filteredA.map(s => [getHourKey(s.timestamp), s.europeanAqi]));
+                const mapB = new Map(filteredB.map(s => [getHourKey(s.timestamp), s.europeanAqi]));
+
+                const allKeys = Array.from(new Set([...mapA.keys(), ...mapB.keys()])).sort();
+
+                const labels = allKeys.map(key => {
+                    const [datePart, timePart] = key.split(' ');
+                    const [, month, day] = datePart.split('-');
+                    return `${day}-${month} ${timePart}`;
                 });
 
-                const dataA = filteredA.map(s => s.europeanAqi);
-                const dataB = filteredB.map(s => s.europeanAqi);
+                const dataA = allKeys.map(k => mapA.get(k) ?? null);
+                const dataB = allKeys.map(k => mapB.get(k) ?? null);
 
                 if (chartInstance) {
                     chartInstance.destroy();
@@ -235,18 +258,20 @@
                         labels: labels,
                         datasets: [
                             {
-                                label: `${cityAName} (AQI)`,
+                                label: isForecastMode ? `${cityAName} (Forecast AQI)` : `${cityAName} (AQI)`,
                                 data: dataA,
                                 borderColor: '#0d6efd',
                                 backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                                borderDash: isForecastMode ? [6, 4] : [], // Stippellijn bij voorspelling
                                 tension: 0.3,
                                 fill: false
                             },
                             {
-                                label: `${cityBName} (AQI)`,
+                                label: isForecastMode ? `${cityBName} (Forecast AQI)` : `${cityBName} (AQI)`,
                                 data: dataB,
                                 borderColor: '#dc3545',
                                 backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                                borderDash: isForecastMode ? [6, 4] : [], // Stippellijn bij voorspelling
                                 tension: 0.3,
                                 fill: false
                             }
