@@ -6,4 +6,5 @@
     <Project Path="Opdracht2/AirPulse_API.csproj" />
   </Folder>
   <Project Path="AirPulse.Shared/AirPulse.Shared.csproj" />
+  <Project Path="TestProject1/TestProject1.csproj" />
 </Solution>

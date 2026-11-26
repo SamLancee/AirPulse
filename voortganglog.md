@@ -1,3 +1,6 @@
+26-11
+
+
 25-11
 Weergave van de grafiek aangepast, verschillende test cases opgeschreven
 

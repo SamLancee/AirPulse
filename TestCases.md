@@ -27,3 +27,11 @@ Testcase 5: End-to-end keten en smoke-check na opstarten (E2E / Smoke-test | Ris
 Situatie: Beide projecten (API en MVC-webapplicatie) worden lokaal gestart en een gebruiker selecteert een andere stad uit de stedenlijst.
 
 Verwacht resultaat: De stedenlijst laadt zonder fouten uit de API, de AQI-badge, statuskleur, kaartjes en grafiek verversen direct met de gegevens van de gekozen stad.
+
+
+Even veel simplere testen voor ook code schrijven:
+Test 1: .db is aanwezig na ophalen API
+Test 2: .db is niet leeg
+Test 3: compare bij viewmodel ziet dat lagere een betere luchtkwaliteit is
+Test 4: compare bij viewmodel bij dezelfde geeft die dat ook aan
+Test 5: lage waarde krijgt groene AQI badge 
